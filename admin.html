@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Evaluadora</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:#1a2744; --blue:#2d4a8a; --accent:#c9a84c;
+  --light:#f4f1eb; --white:#ffffff; --muted:#8a8478; --border:#ddd8ce;
+  --sidebar:#16203a;
+  --serif:'DM Serif Display',Georgia,serif; --sans:'DM Sans',system-ui,sans-serif;
+}
+body { font-family:var(--sans); background:var(--light); color:var(--navy); min-height:100vh; display:flex; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width:260px; flex-shrink:0; background:var(--sidebar); color:#c8d0e0;
+  display:flex; flex-direction:column; min-height:100vh;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.sidebar-top { padding:1.75rem 1.5rem 1.25rem; border-bottom:1px solid rgba(255,255,255,.07); }
+.sidebar-brand { font-family:var(--serif); font-size:1.2rem; font-weight:400; color:var(--white); line-height:1.2; }
+.sidebar-brand em { font-style:italic; color:var(--accent); }
+.sidebar-user { margin-top:.5rem; font-size:12px; color:rgba(200,208,224,.5); }
+
+.sidebar-section { padding:.75rem 1.5rem .25rem; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:rgba(200,208,224,.35); font-weight:500; }
+
+.sidebar-nav { list-style:none; padding:0 .75rem; }
+.sidebar-nav li a {
+  display:flex; align-items:center; gap:.65rem; padding:.6rem .75rem; border-radius:7px;
+  font-size:13.5px; color:rgba(200,208,224,.7); text-decoration:none; transition:all .15s;
+}
+.sidebar-nav li a:hover, .sidebar-nav li a.active { background:rgba(255,255,255,.08); color:var(--white); }
+.sidebar-nav li a .ico { font-size:15px; }
+
+.sidebar-bottom { margin-top:auto; padding:1.25rem 1.5rem; border-top:1px solid rgba(255,255,255,.07); }
+.sidebar-bottom a { font-size:12px; color:rgba(200,208,224,.45); text-decoration:none; transition:color .15s; }
+.sidebar-bottom a:hover { color:rgba(200,208,224,.8); }
+
+/* ── Main ── */
+.main { flex:1; min-width:0; padding:2rem 2.5rem 4rem; }
+@media(max-width:700px){
+  .sidebar{display:none;}
+  .main{padding:1.5rem 1.25rem 4rem;}
+}
+
+.page-header { margin-bottom:2rem; }
+.page-header .eyebrow { font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem; }
+.page-header h1 { font-family:var(--serif); font-size:clamp(1.5rem,4vw,2rem); font-weight:400; }
+.page-header p { margin-top:.4rem; font-size:13.5px; color:var(--muted); }
+
+/* Search bar */
+.search-bar {
+  display:flex; gap:.75rem; align-items:center; margin-bottom:2rem; flex-wrap:wrap;
+}
+.search-bar input {
+  flex:1; min-width:180px; padding:.6rem 1rem; border:1px solid var(--border); border-radius:7px;
+  font-family:var(--sans); font-size:14px; background:var(--white); color:var(--navy); outline:none;
+  transition:border-color .2s; text-transform:uppercase;
+}
+.search-bar input:focus { border-color:var(--blue); }
+.btn { display:inline-flex; align-items:center; gap:.4rem; padding:.6rem 1.3rem; border-radius:7px; font-family:var(--sans); font-size:13.5px; font-weight:500; cursor:pointer; transition:all .15s; border:none; }
+.btn-p { background:var(--navy); color:var(--white); }
+.btn-p:hover { background:var(--blue); }
+.btn-s { background:var(--white); color:var(--navy); border:1px solid var(--border); }
+.btn-s:hover { border-color:var(--navy); }
+.btn-accent { background:var(--accent); color:var(--navy); }
+.btn-accent:hover { filter:brightness(.92); }
+
+/* Family selector */
+.fam-chips { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1.75rem; }
+.chip {
+  padding:.35rem .85rem; border-radius:99px; font-size:12px; font-weight:500; cursor:pointer;
+  border:1.5px solid var(--border); background:var(--white); color:var(--muted); transition:all .15s;
+}
+.chip:hover { border-color:var(--blue); color:var(--navy); }
+.chip.active { background:var(--navy); border-color:var(--navy); color:var(--white); }
+
+/* Empty state */
+.empty { text-align:center; padding:4rem 2rem; color:var(--muted); }
+.empty .icon { font-size:3rem; margin-bottom:1rem; }
+.empty p { font-size:14px; line-height:1.65; }
+
+/* Results grid */
+.results-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:.75rem; }
+.results-header h2 { font-family:var(--serif); font-size:1.2rem; font-weight:400; }
+.results-header .meta { font-size:13px; color:var(--muted); }
+
+/* Comparative chart */
+.comp-card {
+  background:var(--white); border:1px solid var(--border); border-radius:12px;
+  padding:1.75rem; margin-bottom:1.75rem;
+}
+.comp-card .card-title { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:1.25rem; }
+
+.comp-table { width:100%; border-collapse:collapse; font-size:13px; }
+.comp-table th { text-align:left; padding:.5rem .75rem; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); font-weight:500; border-bottom:1px solid var(--border); }
+.comp-table td { padding:.6rem .75rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+.comp-table tr:last-child td { border-bottom:none; }
+.comp-table tr:hover td { background:var(--light); }
+.name-cell { font-weight:500; }
+.eval-cell { font-size:12px; color:var(--muted); }
+.bar-mini { display:flex; align-items:center; gap:.4rem; }
+.bar-mini-track { flex:1; height:14px; background:var(--light); border-radius:3px; overflow:hidden; min-width:60px; }
+.bar-mini-fill { height:100%; border-radius:3px; transition:width .5s ease; }
+.score-val { font-size:12px; font-weight:500; color:var(--muted); min-width:28px; }
+.top-badge { display:inline-block; font-size:10px; padding:2px 7px; border-radius:99px; font-weight:500; }
+
+/* Individual report cards */
+.report-card {
+  background:var(--white); border:1px solid var(--border); border-radius:12px;
+  padding:1.5rem; margin-bottom:1rem; transition:border-color .15s;
+}
+.report-card:hover { border-color:var(--blue); }
+.report-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; gap:1rem; flex-wrap:wrap; }
+.report-card-header .person { }
+.report-card-header .person h3 { font-size:15px; font-weight:500; }
+.report-card-header .person .sub { font-size:12px; color:var(--muted); margin-top:.2rem; }
+.report-card-header .actions { display:flex; gap:.5rem; flex-shrink:0; }
+
+.mini-bars { display:flex; flex-direction:column; gap:.4rem; }
+.mini-bar-row { display:grid; grid-template-columns:90px 1fr 32px; gap:.5rem; align-items:center; }
+.mini-bar-lbl { font-size:12px; font-weight:500; text-align:right; }
+.mini-bar-track { height:16px; background:var(--light); border-radius:3px; overflow:hidden; }
+.mini-bar-fill { height:100%; border-radius:3px; }
+.mini-bar-val { font-size:12px; color:var(--muted); }
+
+/* Modal / report overlay */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:100; align-items:center; justify-content:center; padding:1rem; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--white); border-radius:14px; width:100%; max-width:680px; max-height:90vh; overflow-y:auto; padding:2rem; }
+.modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+.modal-header h2 { font-family:var(--serif); font-size:1.3rem; font-weight:400; }
+.modal-close { background:none; border:none; font-size:22px; color:var(--muted); cursor:pointer; line-height:1; transition:color .15s; }
+.modal-close:hover { color:var(--navy); }
+
+@media print {
+  .sidebar,.search-bar,.fam-chips,.report-card-header .actions,.btn,.modal-overlay{display:none!important;}
+  .main{padding:0;} body{background:white;} .report-card{border:1px solid #ddd;page-break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-brand">Panel de<br><em>Evaluadora</em></div>
+    <div class="sidebar-user" id="sb-user">—</div>
+  </div>
+  <p class="sidebar-section">Navegación</p>
+  <ul class="sidebar-nav">
+    <li><a href="#" class="active"><span class="ico">📊</span> Reportes por familia</a></li>
+    <li><a href="#" onclick="alert('Próximamente')"><span class="ico">📋</span> Todas las evaluaciones</a></li>
+    <li><a href="#" onclick="alert('Próximamente')"><span class="ico">⚙️</span> Configuración</a></li>
+  </ul>
+  <div class="sidebar-bottom">
+    <a href="index.html" onclick="sessionStorage.clear()">← Cerrar sesión</a>
+  </div>
+</aside>
+
+<!-- ── Main ── -->
+<main class="main">
+  <div class="page-header">
+    <p class="eyebrow">Panel de evaluadora</p>
+    <h1>Reportes por familia</h1>
+    <p>Busca un código de familia para ver todos sus resultados y generar reportes.</p>
+  </div>
+
+  <!-- Search -->
+  <div class="search-bar">
+    <input type="text" id="inp-buscar" placeholder="Código de familia (ej. FAM-01)" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')buscarFamilia()">
+    <button class="btn btn-p" onclick="buscarFamilia()">Buscar</button>
+    <button class="btn btn-s" onclick="cargarTodos()">Ver todos</button>
+  </div>
+
+  <div class="fam-chips" id="fam-chips"></div>
+
+  <!-- Results area -->
+  <div id="results-area">
+    <div class="empty">
+      <div class="icon">🔍</div>
+      <p>Ingresa un código de familia para ver sus reportes,<br>o haz clic en "Ver todos" para cargar todos los resultados.</p>
+    </div>
+  </div>
+</main>
+
+<!-- ── Modal reporte individual ── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Reporte</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body"></div>
+    <div style="display:flex;gap:.75rem;margin-top:1.5rem;flex-wrap:wrap">
+      <button class="btn btn-p" onclick="printModal()">Imprimir / guardar PDF</button>
+      <button class="btn btn-s" onclick="closeModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── AUTH ──
+if (sessionStorage.getItem('admin_auth') !== 'true') window.location.href = 'index.html';
+document.getElementById('sb-user').textContent = sessionStorage.getItem('admin_user') || '';
+
+// ── CONFIG ──
+const SHEET_URL = "PEGA_AQUI_TU_URL"; // Misma URL del Apps Script
+
+const ST = {
+  CO:{name:"Competir",   color:"#c0392b",bar:"#c0392b"},
+  CL:{name:"Colaborar",  color:"#1a6b3c",bar:"#1a6b3c"},
+  CM:{name:"Comprometer",color:"#6b3fa0",bar:"#6b3fa0"},
+  EV:{name:"Evadir",     color:"#5a5a5a",bar:"#888"},
+  AC:{name:"Acomodar",   color:"#a06b00",bar:"#a06b00"},
+};
+
+let allData = []; // cache
+let codigosUnicos = [];
+
+// ── Load all data from Sheet ──
+async function fetchData() {
+  if (SHEET_URL === "PEGA_AQUI_TU_URL") {
+    // Demo data for testing
+    return [
+      {nombre:"Ana García",   codigo:"FAM-01", fecha:"12/05/2025", evaluacion:"TKI - Estilos de Conflicto", CO:6,CL:2,CM:3,EV:1,AC:2, estilo_predominante:"Competir"},
+      {nombre:"Carlos García",codigo:"FAM-01", fecha:"12/05/2025", evaluacion:"TKI - Estilos de Conflicto", CO:1,CL:5,CM:3,EV:4,AC:2, estilo_predominante:"Colaborar"},
+      {nombre:"Sofía García", codigo:"FAM-01", fecha:"13/05/2025", evaluacion:"TKI - Estilos de Conflicto", CO:2,CL:2,CM:2,EV:6,AC:2, estilo_predominante:"Evadir"},
+      {nombre:"Luis Pérez",   codigo:"FAM-02", fecha:"10/05/2025", evaluacion:"TKI - Estilos de Conflicto", CO:3,CL:4,CM:5,EV:2,AC:1, estilo_predominante:"Comprometer"},
+      {nombre:"María Pérez",  codigo:"FAM-02", fecha:"11/05/2025", evaluacion:"TKI - Estilos de Conflicto", CO:1,CL:3,CM:2,EV:2,AC:7, estilo_predominante:"Acomodar"},
+    ];
+  }
+  try {
+    const res = await fetch(SHEET_URL + "?action=getAll");
+    const json = await res.json();
+    return json.data || [];
+  } catch(e) {
+    return [];
+  }
+}
+
+async function cargarTodos() {
+  const area = document.getElementById('results-area');
+  area.innerHTML = '<div class="empty"><p>Cargando datos...</p></div>';
+  allData = await fetchData();
+  codigosUnicos = [...new Set(allData.map(d=>d.codigo))].sort();
+  renderChips(codigosUnicos);
+  if (codigosUnicos.length > 0) renderFamilia(codigosUnicos[0]);
+  else area.innerHTML = '<div class="empty"><div class="icon">📭</div><p>No hay datos disponibles todavía.</p></div>';
+}
+
+async function buscarFamilia() {
+  const cod = document.getElementById('inp-buscar').value.trim().toUpperCase();
+  if (!cod) return;
+  if (!allData.length) allData = await fetchData();
+  const found = allData.filter(d => d.codigo === cod);
+  codigosUnicos = [...new Set(allData.map(d=>d.codigo))].sort();
+  renderChips(codigosUnicos, cod);
+  if (found.length) renderFamilia(cod);
+  else document.getElementById('results-area').innerHTML = `<div class="empty"><div class="icon">🔍</div><p>No se encontraron resultados para el código <strong>${cod}</strong>.</p></div>`;
+}
+
+function renderChips(codigos, active) {
+  const wrap = document.getElementById('fam-chips');
+  wrap.innerHTML = codigos.map(c => `<div class="chip ${c===active?'active':''}" onclick="selectChip('${c}')">${c}</div>`).join('');
+}
+
+function selectChip(cod) {
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.textContent===cod));
+  renderFamilia(cod);
+}
+
+function renderFamilia(codigo) {
+  const data = allData.filter(d => d.codigo === codigo);
+  if (!data.length) return;
+  const area = document.getElementById('results-area');
+
+  let html = `
+    <div class="results-header">
+      <div>
+        <h2>Familia / código: ${codigo}</h2>
+        <p class="meta">${data.length} participante${data.length>1?'s':''} · ${[...new Set(data.map(d=>d.evaluacion))].join(', ')}</p>
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-accent" onclick="downloadPDF('${codigo}')">⬇ Descargar reporte PDF</button>
+        <button class="btn btn-s" onclick="window.print()">🖨 Imprimir</button>
+      </div>
+    </div>`;
+
+  // Comparative table
+  if (data.length > 1) {
+    html += `<div class="comp-card">
+      <p class="card-title">Comparativo de estilos — ${codigo}</p>
+      <table class="comp-table">
+        <thead><tr>
+          <th>Nombre</th>
+          ${['CO','CL','CM','EV','AC'].map(k=>`<th style="color:${ST[k].color}">${ST[k].name}</th>`).join('')}
+          <th>Predominante</th>
+        </tr></thead>
+        <tbody>
+          ${data.map(row=>{
+            const scores={CO:row.CO,CL:row.CL,CM:row.CM,EV:row.EV,AC:row.AC};
+            const maxK=Object.entries(scores).sort((a,b)=>b[1]-a[1])[0][0];
+            return `<tr>
+              <td class="name-cell">${row.nombre}<br><span class="eval-cell">${row.fecha}</span></td>
+              ${['CO','CL','CM','EV','AC'].map(k=>`<td>
+                <div class="bar-mini">
+                  <div class="bar-mini-track"><div class="bar-mini-fill" style="background:${ST[k].bar};width:${Math.round((row[k]/8)*100)}%"></div></div>
+                  <span class="score-val">${row[k]}</span>
+                </div>
+              </td>`).join('')}
+              <td><span class="top-badge" style="background:${ST[maxK].color}22;color:${ST[maxK].color}">${ST[maxK].name}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  // Individual cards
+  html += data.map((row,i) => {
+    const scores={CO:row.CO,CL:row.CL,CM:row.CM,EV:row.EV,AC:row.AC};
+    const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+    const top=sorted[0][0];
+    return `<div class="report-card">
+      <div class="report-card-header">
+        <div class="person">
+          <h3>${row.nombre}</h3>
+          <div class="sub">${row.evaluacion} · ${row.fecha} · <span style="color:${ST[top].color};font-weight:500">${ST[top].name}</span></div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-s" style="font-size:12px;padding:.45rem 1rem" onclick="openModal(${i},'${codigo}')">Ver reporte</button>
+        </div>
+      </div>
+      <div class="mini-bars">
+        ${sorted.map(([k,v])=>`<div class="mini-bar-row">
+          <div class="mini-bar-lbl" style="color:${ST[k].color}">${ST[k].name}</div>
+          <div class="mini-bar-track"><div class="mini-bar-fill" style="background:${ST[k].bar};width:${Math.round((v/8)*100)}%"></div></div>
+          <div class="mini-bar-val">${v}/8</div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  area.innerHTML = html;
+}
+
+function openModal(idx, codigo) {
+  const data = allData.filter(d=>d.codigo===codigo);
+  const row = data[idx];
+  const scores={CO:row.CO,CL:row.CL,CM:row.CM,EV:row.EV,AC:row.AC};
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const top=sorted[0][0];
+
+  document.getElementById('modal-title').textContent = `Reporte: ${row.nombre}`;
+  document.getElementById('modal-body').innerHTML = `
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem">${row.evaluacion} · ${row.fecha} · Código: ${row.codigo}</p>
+    <div style="margin-bottom:1.5rem">
+      <p style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">Puntuación por estilo</p>
+      ${sorted.map(([k,v])=>`<div style="display:grid;grid-template-columns:110px 1fr 38px;gap:.6rem;align-items:center;margin-bottom:.6rem">
+        <div style="font-size:13px;font-weight:500;text-align:right;color:${ST[k].color}">${ST[k].name}</div>
+        <div style="height:20px;background:#f4f1eb;border-radius:4px;overflow:hidden">
+          <div style="height:100%;background:${ST[k].bar};width:${Math.round((v/8)*100)}%;border-radius:4px;transition:width .5s"></div>
+        </div>
+        <div style="font-size:13px;font-weight:500;color:var(--muted)">${v}/8</div>
+      </div>`).join('')}
+    </div>
+    <div style="background:#f4f1eb;border-radius:8px;padding:1rem 1.25rem;font-size:13px;line-height:1.65">
+      <strong style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem">Estilo predominante</strong>
+      <span style="font-size:1rem;font-weight:500;color:${ST[top].color}">${ST[top].name}</span>
+      <p style="margin-top:.5rem;color:#4a4440">${getInterpretacion(top)}</p>
+    </div>
+    <div style="margin-top:1.25rem;font-size:13px">
+      <strong style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem">Preguntas para sesión</strong>
+      <ul style="padding-left:1.1rem;line-height:1.8;color:#4a4440">
+        ${getPreguntas(top).map(q=>`<li style="font-style:italic">${q}</li>`).join('')}
+      </ul>
+    </div>
+  `;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+function printModal(){ window.print(); }
+
+function downloadPDF(codigo) {
+  // Opens a print dialog scoped to family report
+  window.print();
+}
+
+function getInterpretacion(k){
+  const m={
+    CO:"Alta asertividad, baja cooperación. Tiende a defender su postura con firmeza. Útil ante decisiones urgentes, pero puede dañar la confianza si se usa en exceso.",
+    CL:"Alta asertividad y alta cooperación. Busca soluciones que funcionen para todos. El estilo más efectivo para acuerdos duraderos, aunque requiere más tiempo.",
+    CM:"Punto medio entre asertividad y cooperación. Cada parte cede algo. Práctico cuando el tiempo es limitado, aunque puede dejar a ambas partes parcialmente insatisfechas.",
+    EV:"Baja asertividad y baja cooperación. Tiende a evitar el conflicto. A veces funcional, pero el uso frecuente acumula tensiones no resueltas.",
+    AC:"Baja asertividad, alta cooperación. Cede ante el otro. Puede ser un gesto estratégico de confianza, pero si es el estilo por defecto genera resentimiento silencioso.",
+  };
+  return m[k]||'';
+}
+function getPreguntas(k){
+  const m={
+    CO:["¿Qué tan seguido sientes que necesitas ganar en los conflictos?","¿Qué crees que pasaría si cedes en este tipo de situaciones?","¿Aprendiste que ceder era una debilidad en tu entorno de origen?"],
+    CL:["¿En qué situaciones te resulta más difícil colaborar?","¿Qué necesitas del otro para poder buscar soluciones conjuntas?","¿Sientes que en tus relaciones cercanas hay condiciones de seguridad para hablar con honestidad?"],
+    CM:["¿Al ceder a medias quedas resentido/a o en paz?","¿Hay temas en los que sientes que no deberías comprometerte?","¿El compromiso se siente como solución real o como aplazar el conflicto?"],
+    EV:["¿Qué temas sientes que son imposibles de tocar con ciertas personas?","¿Qué te da miedo que pase si pones los conflictos sobre la mesa?","¿Hay conflictos que llevan mucho tiempo sin resolverse en tus relaciones?"],
+    AC:["¿Ceder en conflictos te genera alivio o resentimiento?","¿Sientes que tus necesidades cuentan menos que las de los demás?","¿Cuándo aprendiste que era mejor no pedir lo que necesitabas?"],
+  };
+  return m[k]||[];
+}
+</script>
+</body>
+</html>

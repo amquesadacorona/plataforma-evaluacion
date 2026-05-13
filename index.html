@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plataforma de Evaluación · Inicio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:   #1a2744;
+  --blue:   #2d4a8a;
+  --accent: #c9a84c;
+  --light:  #f4f1eb;
+  --white:  #ffffff;
+  --muted:  #8a8478;
+  --border: #ddd8ce;
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans:  'DM Sans', system-ui, sans-serif;
+}
+body {
+  font-family: var(--sans);
+  background: var(--light);
+  color: var(--navy);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+}
+
+/* Background texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle at 20% 20%, rgba(45,74,138,.06) 0%, transparent 60%),
+                    radial-gradient(circle at 80% 80%, rgba(201,168,76,.08) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+}
+
+.logo-area {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+.logo-mark {
+  width: 52px;
+  height: 52px;
+  background: var(--navy);
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+.logo-mark svg { width: 28px; height: 28px; }
+.logo-area h1 {
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--navy);
+}
+.logo-area h1 em { font-style: italic; color: var(--blue); }
+.logo-area p {
+  margin-top: .45rem;
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: .02em;
+}
+
+/* Tabs */
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  border-bottom: none;
+}
+.tab-btn {
+  padding: .9rem;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: .03em;
+  transition: all .18s;
+  border-bottom: 2px solid transparent;
+}
+.tab-btn.active {
+  color: var(--navy);
+  background: var(--light);
+  border-bottom-color: var(--accent);
+}
+
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 0 0 12px 12px;
+  padding: 2rem;
+  display: none;
+}
+.card.active { display: block; }
+
+.card p {
+  font-size: 13.5px;
+  color: #5a5248;
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+.field { margin-bottom: 1.1rem; }
+.field label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 500;
+  margin-bottom: .4rem;
+}
+.field input {
+  width: 100%;
+  padding: .65rem .9rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 14px;
+  background: var(--white);
+  color: var(--navy);
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(45,74,138,.1);
+}
+.field .hint { font-size: 11.5px; color: var(--muted); margin-top: .35rem; }
+.field .err  { font-size: 11.5px; color: #c0392b; margin-top: .35rem; display: none; }
+
+.btn {
+  width: 100%;
+  padding: .75rem;
+  background: var(--navy);
+  color: var(--white);
+  border: none;
+  border-radius: 7px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  letter-spacing: .02em;
+  transition: background .18s, transform .1s;
+  margin-top: .4rem;
+}
+.btn:hover { background: var(--blue); }
+.btn:active { transform: scale(.99); }
+
+.footer {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 12px;
+  color: var(--muted);
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo-area">
+    <div class="logo-mark">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="14" cy="14" r="10" stroke="#c9a84c" stroke-width="1.5"/>
+        <path d="M9 14 L14 9 L19 14 L14 19 Z" stroke="white" stroke-width="1.5" fill="none"/>
+        <circle cx="14" cy="14" r="2" fill="#c9a84c"/>
+      </svg>
+    </div>
+    <h1>Plataforma de<br><em>Evaluación</em></h1>
+    <p>Diagnósticos para familias y equipos</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('familia')">Soy participante</button>
+    <button class="tab-btn" onclick="switchTab('admin')">Soy evaluadora</button>
+  </div>
+
+  <!-- Familia -->
+  <div class="card active" id="tab-familia">
+    <p>Ingresa el código que te proporcionó tu evaluadora para acceder a las evaluaciones de tu familia.</p>
+    <div class="field">
+      <label>Código de familia</label>
+      <input type="text" id="inp-cod" placeholder="Ej. FAM-01" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+      <p class="hint">Tu evaluadora te compartió este código.</p>
+      <p class="err" id="err-cod">Por favor ingresa un código válido.</p>
+    </div>
+    <button class="btn" onclick="entrarFamilia()">Continuar →</button>
+  </div>
+
+  <!-- Admin -->
+  <div class="card" id="tab-admin">
+    <p>Acceso exclusivo para evaluadoras. Ingresa tus credenciales para ver los reportes.</p>
+    <div class="field">
+      <label>Usuario</label>
+      <input type="text" id="inp-user" placeholder="tu@correo.com">
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" id="inp-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')entrarAdmin()">
+      <p class="err" id="err-admin">Credenciales incorrectas.</p>
+    </div>
+    <button class="btn" onclick="entrarAdmin()">Entrar al panel →</button>
+  </div>
+</div>
+
+<p class="footer">© 2025 · Plataforma de Evaluación Familiar</p>
+
+<script>
+// ── CONFIG ── Agrega aquí usuarios válidos
+const ADMINS = {
+  "evaluadora1@correo.com": "admin123",
+  "evaluadora2@correo.com": "admin123",
+  "evaluadora3@correo.com": "admin123"
+};
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', (i===0&&tab==='familia')||(i===1&&tab==='admin')));
+  document.getElementById('tab-familia').classList.toggle('active', tab==='familia');
+  document.getElementById('tab-admin').classList.toggle('active', tab==='admin');
+}
+
+function entrarFamilia() {
+  const cod = document.getElementById('inp-cod').value.trim().toUpperCase();
+  const err = document.getElementById('err-cod');
+  if (!cod) { err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  sessionStorage.setItem('familia_codigo', cod);
+  window.location.href = 'evaluaciones.html';
+}
+
+function entrarAdmin() {
+  const user = document.getElementById('inp-user').value.trim();
+  const pass = document.getElementById('inp-pass').value;
+  const err  = document.getElementById('err-admin');
+  if (ADMINS[user] && ADMINS[user] === pass) {
+    sessionStorage.setItem('admin_user', user);
+    sessionStorage.setItem('admin_auth', 'true');
+    window.location.href = 'admin.html';
+  } else {
+    err.style.display = 'block';
+  }
+}
+</script>
+</body>
+</html>

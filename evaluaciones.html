@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluaciones · Plataforma Familiar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy: #1a2744; --blue: #2d4a8a; --accent: #c9a84c;
+  --light: #f4f1eb; --white: #ffffff; --muted: #8a8478; --border: #ddd8ce;
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans:  'DM Sans', system-ui, sans-serif;
+}
+body { font-family: var(--sans); background: var(--light); color: var(--navy); min-height: 100vh; }
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle at 15% 15%, rgba(45,74,138,.06) 0%, transparent 55%),
+                    radial-gradient(circle at 85% 85%, rgba(201,168,76,.07) 0%, transparent 55%);
+  pointer-events: none; z-index: 0;
+}
+
+.shell { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+/* Nav */
+.topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-bottom: 1.5rem; margin-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+.topbar .logo { font-family: var(--serif); font-size: 1.1rem; color: var(--navy); text-decoration: none; }
+.topbar .codigo-badge {
+  font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+  background: var(--navy); color: var(--white); padding: 4px 10px; border-radius: 99px;
+}
+
+/* Header */
+.page-header { margin-bottom: 2.5rem; }
+.page-header .eyebrow { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+.page-header h1 { font-family: var(--serif); font-size: clamp(1.6rem,5vw,2.4rem); font-weight: 400; line-height: 1.2; }
+.page-header p { margin-top: .6rem; font-size: 14px; color: var(--muted); max-width: 480px; }
+
+/* Name field */
+.name-bar {
+  background: var(--white); border: 1px solid var(--border); border-radius: 10px;
+  padding: 1.25rem 1.5rem; margin-bottom: 2rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.name-bar label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.name-bar input {
+  flex: 1; min-width: 180px; padding: .5rem .75rem; border: 1px solid var(--border); border-radius: 6px;
+  font-family: var(--sans); font-size: 14px; background: var(--light); color: var(--navy); outline: none;
+  transition: border-color .2s;
+}
+.name-bar input:focus { border-color: var(--blue); background: var(--white); }
+.name-bar .hint { font-size: 12px; color: var(--muted); }
+
+/* Evaluation cards */
+.evals-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+.eval-card {
+  background: var(--white); border: 1px solid var(--border); border-radius: 12px;
+  padding: 1.4rem 1.6rem;
+  display: flex; align-items: center; gap: 1.25rem;
+  cursor: pointer; text-decoration: none; color: inherit;
+  transition: border-color .2s, box-shadow .2s, transform .15s;
+  position: relative; overflow: hidden;
+}
+.eval-card:hover {
+  border-color: var(--blue);
+  box-shadow: 0 4px 20px rgba(45,74,138,.1);
+  transform: translateY(-1px);
+}
+.eval-card.locked { opacity: .55; cursor: not-allowed; pointer-events: none; }
+
+.eval-icon {
+  width: 46px; height: 46px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.eval-info { flex: 1; }
+.eval-info h3 { font-size: 15px; font-weight: 500; margin-bottom: .2rem; }
+.eval-info p  { font-size: 13px; color: var(--muted); line-height: 1.45; }
+.eval-meta {
+  display: flex; flex-direction: column; align-items: flex-end; gap: .35rem; flex-shrink: 0;
+}
+.eval-time { font-size: 11px; color: var(--muted); }
+.eval-tag {
+  font-size: 10px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 99px;
+}
+.tag-available { background: #eef7f2; color: #1a6b3c; }
+.tag-soon      { background: #f5f5f4; color: #888; }
+.eval-arrow { font-size: 18px; color: var(--muted); transition: transform .2s; }
+.eval-card:hover .eval-arrow { transform: translateX(4px); color: var(--navy); }
+
+.err-nombre {
+  background: #fdf0ef; border: 1px solid #f5c6c2; border-radius: 8px;
+  padding: .75rem 1rem; font-size: 13px; color: #c0392b; margin-bottom: 1rem; display: none;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="topbar">
+    <a href="index.html" class="logo">← Inicio</a>
+    <span class="codigo-badge" id="nav-codigo">—</span>
+  </nav>
+
+  <div class="page-header">
+    <p class="eyebrow">Evaluaciones disponibles</p>
+    <h1>Bienvenido/a</h1>
+    <p>Selecciona la evaluación que deseas completar. Cada una toma entre 10 y 15 minutos.</p>
+  </div>
+
+  <div class="name-bar">
+    <label>Tu nombre</label>
+    <input type="text" id="inp-nombre" placeholder="Escribe tu nombre antes de comenzar">
+    <span class="hint">Requerido para identificar tu reporte</span>
+  </div>
+
+  <p class="err-nombre" id="err-nombre">Escribe tu nombre antes de seleccionar una evaluación.</p>
+
+  <div class="evals-grid">
+
+    <!-- TKI -->
+    <a class="eval-card" href="tki.html" onclick="return irA(event, 'tki.html')">
+      <div class="eval-icon" style="background:#edf1fb">🔀</div>
+      <div class="eval-info">
+        <h3>Estilos de Manejo de Conflicto</h3>
+        <p>Identifica cómo respondes ante situaciones de conflicto en el trabajo, en casa y en tus relaciones.</p>
+      </div>
+      <div class="eval-meta">
+        <span class="eval-time">~12 min · 25 preguntas</span>
+        <span class="eval-tag tag-available">Disponible</span>
+      </div>
+      <span class="eval-arrow">→</span>
+    </a>
+
+    <!-- Placeholder 2 -->
+    <div class="eval-card locked">
+      <div class="eval-icon" style="background:#f5f5f4">🧭</div>
+      <div class="eval-info">
+        <h3>Próxima evaluación</h3>
+        <p>Esta evaluación estará disponible pronto.</p>
+      </div>
+      <div class="eval-meta">
+        <span class="eval-tag tag-soon">Próximamente</span>
+      </div>
+    </div>
+
+    <!-- Placeholder 3 -->
+    <div class="eval-card locked">
+      <div class="eval-icon" style="background:#f5f5f4">🌱</div>
+      <div class="eval-info">
+        <h3>Próxima evaluación</h3>
+        <p>Esta evaluación estará disponible pronto.</p>
+      </div>
+      <div class="eval-meta">
+        <span class="eval-tag tag-soon">Próximamente</span>
+      </div>
+    </div>
+
+    <!-- Placeholder 4 -->
+    <div class="eval-card locked">
+      <div class="eval-icon" style="background:#f5f5f4">🔗</div>
+      <div class="eval-info">
+        <h3>Próxima evaluación</h3>
+        <p>Esta evaluación estará disponible pronto.</p>
+      </div>
+      <div class="eval-meta">
+        <span class="eval-tag tag-soon">Próximamente</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+const codigo = sessionStorage.getItem('familia_codigo');
+if (!codigo) window.location.href = 'index.html';
+document.getElementById('nav-codigo').textContent = codigo;
+
+function irA(e, href) {
+  const nombre = document.getElementById('inp-nombre').value.trim();
+  const errEl  = document.getElementById('err-nombre');
+  if (!nombre) {
+    e.preventDefault();
+    errEl.style.display = 'block';
+    document.getElementById('inp-nombre').focus();
+    return false;
+  }
+  errEl.style.display = 'none';
+  sessionStorage.setItem('familia_nombre', nombre);
+  return true;
+}
+</script>
+</body>
+</html>

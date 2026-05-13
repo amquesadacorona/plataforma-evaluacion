@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estilos de Conflicto · TKI</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --navy:#1a2744; --blue:#2d4a8a; --accent:#c9a84c;
+  --light:#f4f1eb; --white:#ffffff; --muted:#8a8478; --border:#ddd8ce;
+  --serif:'DM Serif Display',Georgia,serif; --sans:'DM Sans',system-ui,sans-serif;
+}
+body { font-family:var(--sans); background:var(--light); color:var(--navy); min-height:100vh; }
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:radial-gradient(circle at 20% 20%,rgba(45,74,138,.05) 0%,transparent 55%),
+                   radial-gradient(circle at 80% 80%,rgba(201,168,76,.07) 0%,transparent 55%);
+  pointer-events:none; z-index:0;
+}
+.shell { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+
+.topbar { display:flex; justify-content:space-between; align-items:center; padding-bottom:1.5rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border); }
+.topbar a { font-size:13px; color:var(--muted); text-decoration:none; transition:color .15s; }
+.topbar a:hover { color:var(--navy); }
+.topbar .badge { font-size:11px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; background:var(--navy); color:var(--white); padding:4px 10px; border-radius:99px; }
+
+.masthead { text-align:center; padding:1rem 0 2rem; }
+.masthead .eyebrow { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:.5rem; }
+.masthead h1 { font-family:var(--serif); font-size:clamp(1.7rem,5vw,2.6rem); font-weight:400; line-height:1.15; }
+.masthead h1 em { font-style:italic; color:var(--blue); }
+.masthead .sub { margin-top:.6rem; color:var(--muted); font-size:14px; }
+
+/* Screens */
+#screen-intro, #screen-question, #screen-results { display:none; }
+#screen-intro.active, #screen-question.active, #screen-results.active { display:block; }
+
+/* Intro */
+.intro-card { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:1.75rem 2rem; margin-bottom:1.5rem; }
+.intro-card h2 { font-family:var(--serif); font-size:1.2rem; font-weight:400; margin-bottom:.75rem; }
+.intro-card p { font-size:14px; color:#4a4440; line-height:1.65; margin-bottom:.6rem; }
+
+/* Progress */
+.prog-wrap { margin-bottom:1.75rem; }
+.prog-meta { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:.4rem; }
+.prog-track { height:3px; background:var(--border); border-radius:99px; overflow:hidden; }
+.prog-fill { height:100%; background:var(--accent); border-radius:99px; transition:width .35s ease; }
+
+.q-num { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:.5rem; }
+.q-sit { font-family:var(--serif); font-size:1.15rem; font-weight:400; line-height:1.45; margin-bottom:1.75rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border); }
+
+.opts { display:flex; flex-direction:column; gap:.85rem; }
+.opt { background:var(--white); border:1.5px solid var(--border); border-radius:10px; padding:1.1rem 1.4rem; cursor:pointer; display:flex; align-items:flex-start; gap:1rem; user-select:none; transition:all .15s; }
+.opt:hover { border-color:var(--blue); background:#f7faff; }
+.opt.sel { border-color:var(--navy); background:#edf1fb; }
+.opt-letter { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--light); border:1.5px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:500; color:var(--muted); transition:all .15s; margin-top:1px; }
+.opt.sel .opt-letter { background:var(--navy); border-color:var(--navy); color:var(--white); }
+.opt-text { font-size:14px; line-height:1.55; color:#3a3530; }
+
+.nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:2rem; gap:1rem; }
+.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.8rem; border-radius:7px; font-family:var(--sans); font-size:14px; font-weight:500; cursor:pointer; transition:all .18s; border:none; }
+.btn-p { background:var(--navy); color:var(--white); }
+.btn-p:hover { background:var(--blue); }
+.btn-p:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
+.btn-s { background:transparent; color:var(--muted); border:1px solid var(--border); }
+.btn-s:hover { color:var(--navy); border-color:var(--navy); }
+
+/* Results */
+.res-header { text-align:center; margin-bottom:2.5rem; }
+.res-header .eyebrow { font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:.5rem; }
+.res-header h2 { font-family:var(--serif); font-size:clamp(1.5rem,4vw,2.1rem); font-weight:400; }
+.res-header .sub { margin-top:.5rem; color:var(--muted); font-size:13px; }
+
+.chart-box { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:1.75rem; margin-bottom:1.5rem; }
+.chart-title { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:1.25rem; }
+.bar-row { display:grid; grid-template-columns:110px 1fr 38px; align-items:center; gap:.75rem; margin-bottom:.75rem; }
+.bar-lbl { font-size:13px; font-weight:500; text-align:right; }
+.bar-track { height:22px; background:var(--light); border-radius:4px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; transition:width .6s cubic-bezier(.4,0,.2,1); width:0; }
+.bar-val { font-size:13px; font-weight:500; color:var(--muted); }
+
+.scard { border-radius:10px; border:1px solid var(--border); margin-bottom:1rem; overflow:hidden; }
+.scard-hdr { display:flex; justify-content:space-between; align-items:center; padding:.9rem 1.25rem; cursor:pointer; user-select:none; }
+.scard-hdr:hover { filter:brightness(.97); }
+.scard-title { display:flex; align-items:center; gap:.75rem; font-weight:500; font-size:15px; }
+.pill { font-size:10px; letter-spacing:.06em; text-transform:uppercase; padding:2px 8px; border-radius:99px; font-weight:500; }
+.badge-top { font-size:10px; padding:2px 8px; border-radius:99px; background:var(--accent); color:var(--navy); font-weight:500; }
+.chev { transition:transform .25s; font-size:18px; color:var(--muted); line-height:1; }
+.scard.open .chev { transform:rotate(180deg); }
+.scard-body { display:none; padding:0 1.25rem 1.25rem; font-size:14px; line-height:1.65; }
+.scard.open .scard-body { display:block; }
+.info-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-top:.85rem; }
+@media(max-width:500px){.info-row{grid-template-columns:1fr;}}
+.ibox { border-radius:6px; padding:.75rem 1rem; font-size:13px; }
+.ibox .ilbl { font-size:11px; letter-spacing:.07em; text-transform:uppercase; font-weight:500; margin-bottom:.35rem; }
+
+.rec-box { background:var(--white); border:1px solid var(--border); border-radius:12px; padding:1.75rem; margin-bottom:1.5rem; }
+.rec-box h3 { font-family:var(--serif); font-size:1.1rem; font-weight:400; margin-bottom:1rem; }
+.rec-list { list-style:none; }
+.rec-list li { display:flex; gap:.75rem; font-size:14px; line-height:1.6; padding:.6rem 0; border-bottom:1px solid var(--border); }
+.rec-list li:last-child { border-bottom:none; }
+.rec-list li::before { content:'→'; color:var(--accent); flex-shrink:0; margin-top:1px; }
+
+.send-box { background:var(--white); border:1px solid var(--border); border-radius:10px; padding:1rem 1.25rem; margin-bottom:1.5rem; font-size:13px; text-align:center; }
+.ok  { color:#1a6b3c; font-weight:500; }
+.err { color:#c0392b; font-weight:500; }
+.ldg { color:var(--muted); }
+
+.actions { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:.5rem; }
+
+@media print {
+  body{background:white;} .btn,.send-box,.topbar{display:none;}
+  .scard-body{display:block!important;} .chev{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="topbar">
+    <a href="evaluaciones.html">← Evaluaciones</a>
+    <span class="badge" id="nav-info">—</span>
+  </nav>
+
+  <div class="masthead">
+    <p class="eyebrow">Evaluación · Thomas-Kilmann</p>
+    <h1>Estilos de Manejo<br>de <em>Conflicto</em></h1>
+    <p class="sub">25 situaciones · ~12 minutos</p>
+  </div>
+
+  <!-- INTRO -->
+  <section id="screen-intro" class="active">
+    <div class="intro-card">
+      <h2>Antes de empezar</h2>
+      <p>Encontrarás 25 situaciones cotidianas — en el trabajo, en casa o en tus relaciones. Para cada una elegirás entre dos opciones.</p>
+      <p>No hay respuestas correctas ni incorrectas. Elige la opción que mejor describa cómo <em>realmente actuarías</em>, no cómo crees que deberías actuar.</p>
+    </div>
+    <button class="btn btn-p" style="width:100%;justify-content:center" onclick="startQuiz()">Comenzar →</button>
+  </section>
+
+  <!-- QUESTION -->
+  <section id="screen-question">
+    <div class="prog-wrap">
+      <div class="prog-meta"><span id="prog-lbl">1 de 25</span><span id="prog-pct">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <p class="q-num" id="q-num">Situación 1</p>
+    <p class="q-sit" id="q-sit"></p>
+    <div class="opts" id="opts"></div>
+    <div class="nav-row">
+      <button class="btn btn-s" id="btn-prev" onclick="prevQ()" disabled>← Anterior</button>
+      <button class="btn btn-p" id="btn-next" onclick="nextQ()" disabled>Siguiente →</button>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="screen-results">
+    <div class="res-header">
+      <p class="eyebrow">Diagnóstico completado</p>
+      <h2>Tus estilos de<br>manejo de conflicto</h2>
+      <p class="sub" id="res-sub"></p>
+    </div>
+    <div class="send-box" id="send-box"><p class="ldg" id="send-st">⏳ Enviando resultados...</p></div>
+    <div class="chart-box"><p class="chart-title">Puntuación por estilo (máx. 8)</p><div id="bars"></div></div>
+    <div id="scards"></div>
+    <div class="rec-box"><h3>Lo que este perfil sugiere</h3><ul class="rec-list" id="recs"></ul></div>
+    <div class="actions">
+      <button class="btn btn-s" onclick="window.print()">Imprimir / PDF</button>
+      <button class="btn btn-s" onclick="window.location.href='evaluaciones.html'">Volver al menú</button>
+    </div>
+  </section>
+</div>
+
+<script>
+// ── CONFIG ──
+const SHEET_URL = "PEGA_AQUI_TU_URL";
+
+const ITEMS = [
+  {sit:"Alguien con quien trabajas o convives no cumple con lo que se comprometió a hacer.",a:"Evito decirle algo para no generar tensión.",b:"Hablo con esa persona directamente y busco entender qué pasó.",sA:"EV",sB:"CL"},
+  {sit:"Hay una decisión importante que te afecta y no te consultaron.",a:"Me molesta, pero prefiero no decir nada.",b:"Expreso que quería ser incluido/a y propongo cómo hacerlo diferente en el futuro.",sA:"EV",sB:"CO"},
+  {sit:"Alguien cercano hace algo que te lastima sin darse cuenta.",a:"No digo nada y espero que se dé cuenta solo/a.",b:"Se lo digo con calma y le explico cómo me afectó.",sA:"EV",sB:"CM"},
+  {sit:"Tienes una opinión muy diferente a la del grupo sobre cómo resolver un problema.",a:"Defiendo mi postura con firmeza hasta que los demás la consideren.",b:"Comparto mi punto de vista y escucho los otros para buscar la mejor solución entre todos.",sA:"CO",sB:"CL"},
+  {sit:"Alguien te pide un favor que no puedes o no quieres hacer, pero sientes presión para decir que sí.",a:"Acepto aunque no quiera, para no decepcionar a esa persona.",b:"Le digo con honestidad que no puedo en este momento y le explico por qué.",sA:"AC",sB:"CO"},
+  {sit:"Hay un desacuerdo sobre cómo repartir una responsabilidad que comparten dos personas.",a:"Cedo y acepto cargar con más de lo que me corresponde para no discutir.",b:"Propongo que evaluemos juntos qué es justo para cada uno.",sA:"AC",sB:"CL"},
+  {sit:"Una persona importante para ti toma una decisión que crees que le va a afectar negativamente.",a:"No me meto porque es su vida y no quiero interferir.",b:"Le digo lo que pienso con respeto y le dejo a ella/él la decisión final.",sA:"EV",sB:"CM"},
+  {sit:"Hay una tensión no resuelta entre dos personas de tu entorno que afecta el ambiente.",a:"Prefiero no meterme mientras no me involucre directamente.",b:"Propongo abrir el tema o facilitar una conversación para resolverlo.",sA:"EV",sB:"CL"},
+  {sit:"Alguien no respeta un límite que pusiste claramente.",a:"Vuelvo a decir con firmeza que ese límite no es negociable.",b:"Busco entender por qué lo cruzó y acordamos cómo evitarlo en el futuro.",sA:"CO",sB:"CL"},
+  {sit:"Tienes que tomar una decisión importante junto con otra persona y no llegan a un acuerdo.",a:"Cedo completamente a lo que el otro quiere para no prolongar la discusión.",b:"Propongo que cada uno ceda algo y acordemos una solución intermedia.",sA:"AC",sB:"CM"},
+  {sit:"Alguien dice algo que te parece injusto o incorrecto frente a otras personas.",a:"Me callo en ese momento para no hacer una escena.",b:"Lo menciono con respeto en el momento o busco hablarlo después en privado.",sA:"EV",sB:"CM"},
+  {sit:"Hay una tarea que deberían hacer dos personas, pero una de ellas no está cumpliendo su parte.",a:"Lo hago yo solo/a para que quede bien, sin decir nada.",b:"Hablo con esa persona y acordamos cómo repartir mejor la responsabilidad.",sA:"AC",sB:"CL"},
+  {sit:"Alguien te da retroalimentación negativa que no crees que sea justa.",a:"La acepto sin decir nada, aunque no esté de acuerdo.",b:"Escucho con atención y luego comparto mi perspectiva de forma respetuosa.",sA:"AC",sB:"CM"},
+  {sit:"Hay un desacuerdo sobre cómo se debe hacer algo y tú estás convencido/a de que tu manera es la correcta.",a:"Insisto en mi propuesta y argumento hasta que los demás la adopten.",b:"Presento mi propuesta con argumentos y estoy abierto/a a que se enriquezca con otras ideas.",sA:"CO",sB:"CL"},
+  {sit:"Sientes que alguien abusa de tu disposición a ayudar.",a:"Sigo ayudando aunque me sienta agotado/a porque no quiero decepcionar.",b:"Le digo que necesito replantear cómo nos apoyamos mutuamente.",sA:"AC",sB:"CO"},
+  {sit:"Hay un conflicto entre dos personas de tu entorno y ambas te piden que te pongas de su lado.",a:"Evito opinar para no involucrarme ni afectar ninguna relación.",b:"Les digo que prefiero ayudarles a dialogar en lugar de tomar partido.",sA:"EV",sB:"CL"},
+  {sit:"Alguien cambia los planes que habían acordado sin avisarte.",a:"Lo dejo pasar para no armar un problema por algo que ya pasó.",b:"Le digo cómo me afectó y acordamos cómo comunicarnos mejor a futuro.",sA:"EV",sB:"CM"},
+  {sit:"Tienes que llegar a un acuerdo rápido con alguien que tiene una postura muy diferente a la tuya.",a:"Propongo que cada uno ceda algo y cerremos el tema.",b:"Prefiero tomar yo la decisión final para no perder más tiempo.",sA:"CM",sB:"CO"},
+  {sit:"Alguien de tu entorno hace algo que afecta negativamente al grupo y nadie lo dice abiertamente.",a:"Espero que alguien más lo aborde porque no quiero ser el que señale.",b:"Lo nombro de forma respetuosa porque creo que es importante para el grupo.",sA:"EV",sB:"CO"},
+  {sit:"Hay un tema difícil que lleva mucho tiempo sin resolverse entre tú y alguien cercano.",a:"Lo dejo así porque hablar de eso podría empeorar las cosas.",b:"Propongo abordarlo en un momento adecuado, con calma y disposición de los dos.",sA:"EV",sB:"CL"},
+  {sit:"Alguien te pide que hagas algo de una manera que no es la que tú harías.",a:"Lo hago a su manera sin comentar nada, aunque no sea lo que yo elegiría.",b:"Le digo cómo lo haría yo y buscamos cuál de las dos formas funciona mejor.",sA:"AC",sB:"CM"},
+  {sit:"Una persona se lleva el crédito de algo en lo que tú también participaste.",a:"No digo nada para no parecer que estoy buscando reconocimiento.",b:"Lo menciono con naturalidad para que quede claro quiénes contribuyeron.",sA:"EV",sB:"CO"},
+  {sit:"Hay un desacuerdo sobre qué es lo prioritario en un proyecto o situación compartida.",a:"Acepto la prioridad del otro aunque no la comparta.",b:"Propongo que revisemos juntos los criterios y lleguemos a un orden que tenga sentido para los dos.",sA:"AC",sB:"CL"},
+  {sit:"Alguien que tiene autoridad sobre ti toma una decisión con la que no estás de acuerdo.",a:"La acepto sin decir nada aunque me parezca incorrecta.",b:"Le expreso mi punto de vista con respeto y escucho su razonamiento.",sA:"AC",sB:"CM"},
+  {sit:"Tienes una conversación difícil pendiente que sabes que eventualmente tienes que tener.",a:"La pospongo hasta que no tenga más opción que hablar.",b:"La enfrento cuando el momento es adecuado, aunque sea incómodo.",sA:"EV",sB:"CO"},
+];
+
+const ST = {
+  CO:{name:"Competir",   color:"#c0392b",bg:"#fdf0ef",bar:"#c0392b",axes:"Alta asertividad · Baja cooperación"},
+  CL:{name:"Colaborar",  color:"#1a6b3c",bg:"#eef7f2",bar:"#1a6b3c",axes:"Alta asertividad · Alta cooperación"},
+  CM:{name:"Comprometer",color:"#6b3fa0",bg:"#f4effa",bar:"#6b3fa0",axes:"Asertividad media · Cooperación media"},
+  EV:{name:"Evadir",     color:"#5a5a5a",bg:"#f5f5f4",bar:"#888",   axes:"Baja asertividad · Baja cooperación"},
+  AC:{name:"Acomodar",   color:"#a06b00",bg:"#fdf6e3",bar:"#a06b00",axes:"Baja asertividad · Alta cooperación"},
+};
+const INFO = {
+  CO:{when:"Decisiones urgentes, defensa de límites claros, cuando hay desequilibrio de poder que requiere firmeza.",risk:"Daña la confianza relacional. Puede generar miedo, sumisión o rebelión en el otro.",q:["¿Qué tan seguido sientes que necesitas ganar en los conflictos?","¿Qué crees que pasaría si cedes en este tipo de situaciones?","¿Aprendiste que ceder era una debilidad en tu entorno de origen?"]},
+  CL:{when:"Temas importantes para ambas partes, cuando hay tiempo para dialogar, para construir acuerdos duraderos.",risk:"Agotamiento si se usa siempre. No toda situación permite un proceso colaborativo profundo.",q:["¿En qué situaciones te resulta más difícil colaborar?","¿Qué necesitas del otro para poder buscar soluciones conjuntas?","¿Sientes que en tus relaciones cercanas hay condiciones de seguridad para hablar con honestidad?"]},
+  CM:{when:"Tiempo limitado, posiciones razonables de ambas partes, paso intermedio hacia la colaboración.",risk:"Puede dejar a ambas partes insatisfechas. En conflictos de valores puede sentirse como traición.",q:["¿Al ceder a medias quedas resentido/a o en paz?","¿Hay temas en los que sientes que no deberías comprometerte bajo ninguna circunstancia?","¿El compromiso se siente como solución real o como aplazar el conflicto?"]},
+  EV:{when:"Conflictos triviales, emociones muy elevadas que requieren tiempo, cuando no es el momento adecuado.",risk:"Acumulación de resentimiento. Los problemas no resueltos se vuelven crónicos.",q:["¿Qué temas sientes que son imposibles de tocar con ciertas personas?","¿Qué te da miedo que pase si pones los conflictos sobre la mesa?","¿Hay conflictos que llevan mucho tiempo sin resolverse en tus relaciones?"]},
+  AC:{when:"El tema importa más al otro, gesto estratégico de confianza, cuando reconoces que te equivocaste.",risk:"Pérdida de identidad y resentimiento silencioso. Patrón de complacencia que puede crecer sin notarse.",q:["¿Ceder en conflictos te genera alivio o resentimiento?","¿Sientes que tus necesidades cuentan menos que las de los demás?","¿Cuándo aprendiste que era mejor no pedir lo que necesitabas?"]},
+};
+
+let cur=0, answers={};
+const nombre  = sessionStorage.getItem('familia_nombre') || 'Participante';
+const codigo  = sessionStorage.getItem('familia_codigo') || '';
+if (!codigo) window.location.href='index.html';
+document.getElementById('nav-info').textContent = `${nombre} · ${codigo}`;
+
+function show(id){ ['screen-intro','screen-question','screen-results'].forEach(s=>{ document.getElementById(s).classList.toggle('active',s===id); }); }
+function startQuiz(){ show('screen-question'); renderQ(0); }
+
+function renderQ(idx){
+  cur=idx;
+  const item=ITEMS[idx], total=ITEMS.length;
+  document.getElementById('q-num').textContent=`Situación ${idx+1}`;
+  document.getElementById('q-sit').textContent=item.sit;
+  document.getElementById('prog-lbl').textContent=`${idx+1} de ${total}`;
+  const p=Math.round((idx/total)*100);
+  document.getElementById('prog-pct').textContent=p+'%';
+  document.getElementById('prog-fill').style.width=p+'%';
+  document.getElementById('btn-prev').disabled=idx===0;
+  const sel=answers[idx];
+  document.getElementById('opts').innerHTML=['a','b'].map(k=>`
+    <div class="opt ${sel===k?'sel':''}" onclick="pick(${idx},'${k}')">
+      <div class="opt-letter">${k.toUpperCase()}</div>
+      <div class="opt-text">${item[k]}</div>
+    </div>`).join('');
+  const bn=document.getElementById('btn-next');
+  bn.disabled=!sel;
+  bn.textContent=idx===total-1?'Ver diagnóstico →':'Siguiente →';
+}
+function pick(idx,opt){
+  answers[idx]=opt;
+  document.querySelectorAll('.opt').forEach((el,i)=>el.classList.toggle('sel',i===(opt==='a'?0:1)));
+  document.getElementById('btn-next').disabled=false;
+}
+function nextQ(){ if(!answers[cur])return; cur===ITEMS.length-1?showResults():renderQ(cur+1); }
+function prevQ(){ if(cur>0)renderQ(cur-1); }
+
+function calcScores(){
+  const s={CO:0,CL:0,CM:0,EV:0,AC:0};
+  ITEMS.forEach((item,i)=>{ const a=answers[i]; if(a==='a')s[item.sA]++; else if(a==='b')s[item.sB]++; });
+  return s;
+}
+
+function showResults(){
+  const sc=calcScores();
+  show('screen-results');
+  const sorted=Object.entries(sc).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('res-sub').textContent=`${nombre} · ${codigo} · ${new Date().toLocaleDateString('es-MX')}`;
+
+  // bars
+  document.getElementById('bars').innerHTML=sorted.map(([k,v])=>{
+    const st=ST[k], pct=Math.round((v/8)*100);
+    return `<div class="bar-row"><div class="bar-lbl" style="color:${st.color}">${st.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="background:${st.bar};width:0%" data-pct="${pct}"></div></div>
+      <div class="bar-val">${v}/8</div></div>`;
+  }).join('');
+  setTimeout(()=>document.querySelectorAll('.bar-fill').forEach(el=>{el.style.width=el.dataset.pct+'%';}),80);
+
+  // cards
+  document.getElementById('scards').innerHTML=sorted.map(([k,v],i)=>{
+    const st=ST[k],inf=INFO[k],top=i===0;
+    return `<div class="scard ${top?'open':''}" style="border-color:${top?st.color:'var(--border)'}">
+      <div class="scard-hdr" style="background:${st.bg}" onclick="this.parentElement.classList.toggle('open')">
+        <div class="scard-title">
+          <span style="color:${st.color}">${st.name}</span>
+          <span class="pill" style="background:${st.color}22;color:${st.color}">${v} pts</span>
+          ${top?'<span class="badge-top">Predominante</span>':''}
+        </div>
+        <span class="chev">▾</span>
+      </div>
+      <div class="scard-body">
+        <p style="color:var(--muted);font-size:13px;margin-bottom:.85rem">${st.axes}</p>
+        <div class="info-row">
+          <div class="ibox" style="background:#eef7f2;border:1px solid #c3e8d5">
+            <div class="ilbl" style="color:#1a6b3c">✓ Cuándo es útil</div>
+            <p style="color:#1a4a2a">${inf.when}</p>
+          </div>
+          <div class="ibox" style="background:#fff8ec;border:1px solid #f0d9a0">
+            <div class="ilbl" style="color:#a06b00">⚠ Riesgo si se sobreusa</div>
+            <p style="color:#6a4600">${inf.risk}</p>
+          </div>
+        </div>
+        <div style="margin-top:1rem">
+          <div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:.5rem">Preguntas para sesión</div>
+          <ul style="padding-left:1.1rem;font-size:13px;color:#4a4440">${inf.q.map(q=>`<li style="margin-bottom:.3rem;font-style:italic">${q}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // recs
+  const recs=[];
+  const top=sorted[0][0];
+  recs.push(`Tu estilo predominante es <strong>${ST[top].name}</strong> (${sorted[0][1]}/8). ${INFO[top].risk}`);
+  if(sc.CL<=2)recs.push("Tu puntaje en Colaborar es bajo. Desarrollar este estilo puede ayudarte a construir acuerdos más duraderos.");
+  if(sc.EV>=5)recs.push("Usas frecuentemente la Evasión. Puede estar acumulando conflictos no resueltos. Vale explorar qué genera ese patrón.");
+  if(sc.AC>=5)recs.push("El puntaje alto en Acomodar puede señalar una tendencia a posponer tus propias necesidades.");
+  if(sc.CO>=5)recs.push("Competir con frecuencia puede erosionar la confianza en relaciones cercanas.");
+  if(sorted[0][1]>=6&&sorted[1][1]<=2)recs.push("Tu perfil está muy concentrado en un solo estilo. Ampliar tu repertorio te daría más flexibilidad.");
+  if(recs.length<3)recs.push("Tu perfil muestra cierta flexibilidad entre estilos, lo cual es una fortaleza. Trabajar en reconocer cuándo cada estilo es más efectivo puede potenciar tu manejo del conflicto.");
+  document.getElementById('recs').innerHTML=recs.map(r=>`<li>${r}</li>`).join('');
+
+  // send
+  sendData(sc, sorted[0][0]);
+}
+
+function sendData(sc, topStyle){
+  const box=document.getElementById('send-box');
+  const st=document.getElementById('send-st');
+  if(SHEET_URL==="PEGA_AQUI_TU_URL"){ box.style.display='none'; return; }
+  fetch(SHEET_URL,{
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      evaluacion:'TKI - Estilos de Conflicto',
+      nombre, codigo,
+      fecha:new Date().toLocaleString('es-MX'),
+      CO:sc.CO, CL:sc.CL, CM:sc.CM, EV:sc.EV, AC:sc.AC,
+      estilo_predominante:ST[topStyle].name
+    })
+  }).then(()=>{ st.className='ok'; st.textContent='✓ Resultados enviados correctamente.'; })
+    .catch(()=>{ st.className='err'; st.textContent='No fue posible enviar. Muestra esta pantalla a tu evaluadora.'; });
+}
+</script>
+</body>
+</html>
